@@ -26,7 +26,7 @@ func toInt64(v interface{}) (int64, error) {
 	case float64:
 		return int64(i), nil
 	default:
-		return 0, errors.New("Not Number.")
+		return 0, errors.New("not Number")
 	}
 }
 
@@ -46,6 +46,7 @@ func generateSig(secret, payload []byte) []byte {
 	return sig
 }
 
+// MakeToken generate token with given data v, secret and timeout
 func MakeToken(v map[string]interface{}, secret string, timeout int64) (string, error) {
 	if _, ok := v["salt"].(string); !ok {
 		salt := make([]byte, 3)
@@ -73,6 +74,8 @@ func MakeToken(v map[string]interface{}, secret string, timeout int64) (string, 
 	return token, nil
 }
 
+// ParseToken parse string token with secret,
+// return error when secret dismatch or expires
 func ParseToken(token string, secret string) (map[string]interface{}, error) {
 	decodedToken, err := base64.URLEncoding.DecodeString(token)
 	if err != nil {
@@ -83,7 +86,7 @@ func ParseToken(token string, secret string) (map[string]interface{}, error) {
 	realSig := generateSig(signSecret(secret, sha256.Size), payload)
 
 	if !bytes.Equal(sig, realSig) {
-		return nil, errors.New("Invalid signiture.")
+		return nil, errors.New("invalid signiture")
 	}
 
 	var v interface{}
@@ -94,15 +97,15 @@ func ParseToken(token string, secret string) (map[string]interface{}, error) {
 
 	data, ok := v.(map[string]interface{})
 	if !ok {
-		return nil, errors.New("Invalid json.")
+		return nil, errors.New("invalid json")
 	}
 
 	expires, err := toInt64(data["expires"])
 	if err != nil {
-		return nil, errors.New("Invalid json.")
+		return nil, errors.New("invalid json")
 	}
 	if expires < time.Now().Unix() {
-		return nil, errors.New("Token has expired.")
+		return nil, errors.New("token has expired")
 	}
 
 	delete(data, "salt")

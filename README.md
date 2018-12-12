@@ -1,8 +1,8 @@
-# Tokenlib
+## Tokenlib
 
 Golang port of [tokenlib](https://github.com/mozilla-services/tokenlib).
 
-## Examples
+### Examples
 
 ```go
 import (
